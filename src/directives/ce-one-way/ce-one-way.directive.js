@@ -44,6 +44,7 @@ function ceOneWay() {
 
         // keep a local cache so we don't parse the same expression again and again...
         var cache = {};
+        var matchedPattern = null;
 
         return function() {
           if (!cache[expression]) {
@@ -54,7 +55,11 @@ function ceOneWay() {
             // cache[expression][3] = event handler
             // cache[expression][4] = event handler params (i.e. "$event, a, b, c")
 
-            cache[expression] = expression.match(/((.*)\.)?(\w*)\((.*)\)/);
+            matchedPattern = expression.match(/((.*)\.)?(\w*)\((.*)\)/);
+            cache[expression] = {
+              handler: matchedPattern[3],
+              controllerAlias: matchedPattern[2]
+            }
           }
           return cache[expression];
         }
@@ -64,7 +69,7 @@ function ceOneWay() {
       function getCtrlAlias(expression) {
         var parsedExpression = parse(expression)();
         if (parsedExpression) {
-          return parsedExpression[2];
+          return parsedExpression.controllerAlias;
         }
       }
 
@@ -72,7 +77,7 @@ function ceOneWay() {
       function getHandler(expression) {
         var parsedExpression = parse(expression)();
         if (parsedExpression) {
-          return parsedExpression[3];
+          return parsedExpression.handler;
         }
       }
 
